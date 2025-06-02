@@ -7,7 +7,8 @@
 `docker build . -t mcp:0.0.1`
 
 3. Update the config `claude_desktop_config.json` with the following: 
-`{
+```
+{
   "mcpServers": {
     "k8s-mcp": {
        "command": "docker",
@@ -22,6 +23,7 @@
         ]
     }
   }
-}`
+}
+```
 
 4. Restart Claude desktop.
