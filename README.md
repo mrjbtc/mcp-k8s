@@ -2,7 +2,7 @@
 
 ## Claude Desktop ##
 
-1. Create [kube-config](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/) for accessing kubernetes API.
+1. Create [kube-config](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/) for accessing kubernetes cluster.
 2. Build a docker image using Dockerfile.
 `docker build . -t mcp:0.0.1`
 
@@ -19,7 +19,7 @@
           "mcp:0.0.1",
           "uv",
           "run",
-          "mcp/main.py"
+          "src/main.py"
         ]
     }
   }
