@@ -13,7 +13,7 @@ from server import mcp
 async def get_pods(options: str) -> str:
 	""" Get pods under supplied namesapce, otherwise get all pods
 	
-		Args: 
+		Args:
 			options: string of options below
 			    -A, --all-namespaces=false:
 				If present, list the requested object(s) across all namespaces. Namespace in current context is ignored even
@@ -99,6 +99,49 @@ async def get_pods(options: str) -> str:
 			    --watch-only=false:
 				Watch for changes to the requested object(s), without listing/getting first.
 	"""
-	pods = Pods(namespace)
-	pods = await pods.get()
+	pods = Pods()
+	pods = await pods.get_pods(options)
+	return json.dumps(pods.model_dump())
+
+@mcp.tool(
+    annotations={
+        "title": "Descibe pods",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": False
+    }
+)
+async def describe_pods(name: str, options: str) -> str:
+	""" Describe pods
+
+		Args:
+		name: name of the pod
+		options: string of options below
+		    -A, --all-namespaces=false:
+			If present, list the requested object(s) across all namespaces. Namespace in current context is ignored even
+			if specified with --namespace.
+
+		    --chunk-size=500:
+			Return large lists in chunks rather than all at once. Pass 0 to disable. This flag is beta and may change in
+			the future.
+
+		    -f, --filename=[]:
+			Filename, directory, or URL to files containing the resource to describe
+
+		    -k, --kustomize='':
+			Process the kustomization directory. This flag can't be used together with -f or -R.
+
+		    -R, --recursive=false:
+			Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests
+			organized within the same directory.
+
+		    -l, --selector='':
+			Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching
+			objects must satisfy all of the specified label constraints.
+
+		    --show-events=true:
+			If true, display events related to the described object.
+	"""
+	pods = Pods()
+	pods = await pods.describe_pods(name, options)
 	return json.dumps(pods.model_dump())

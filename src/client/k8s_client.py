@@ -7,11 +7,11 @@ class Kubectl():
 	
 	result = None
 
-	def __init__(self, cmd=[]):
-		self.cmd = cmd
-
-
 	async def __run(self):
+
+		if not cmd:
+			return
+
 		self.result = subprocess.run(
 			self.cmd,
 			stdout=subprocess.PIPE,
@@ -19,12 +19,14 @@ class Kubectl():
 			text=True
 		)
 
-	async def get(self) -> MCPResponse:
-
+	async def _get(self, cmd=[]) -> MCPResponse:
+		
+		self.cmd = cmd
 		await self.__run()
+
 		if not self.result:
 			return MCPResponse(
-				error=f"""Error: empty result. @src/client/k8s_client.py"""
+				error=f"""Error: empty result. @src/client/k8s_client.py. CMD: {self.cmd}"""
 			) 
 
 		if self.result.returncode != 0:

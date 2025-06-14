@@ -101,5 +101,5 @@ async def get_namespaces(options: str) -> str:
     """
 
 	namespaces = NameSpaces()
-	namespaces = await namespaces.get()
+	namespaces = await namespaces.get_namespaces(options)
 	return json.dumps(namespaces.model_dump())

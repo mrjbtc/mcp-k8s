@@ -99,6 +99,6 @@ async def get_services(options: str) -> str:
 		    --watch-only=false:
 			Watch for changes to the requested object(s), without listing/getting first.
 	"""
-	services = Services(options)
-	services = await services.get()
+	services = Services()
+	services = await services.get_services(options)
 	return json.dumps(services.model_dump())
