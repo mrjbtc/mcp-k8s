@@ -187,6 +187,7 @@ async def get_blue_green_deployment(options: str) -> str:
         "openWorldHint": False
     }
 )
+
 async def deploy_to_green_environment(name: str, options: str) -> str:
 	""" Deploying to green environment. The green environment is a deployment which has a labaled as environment=green
 
@@ -235,3 +236,5 @@ async def deploy_to_green_environment(name: str, options: str) -> str:
 				Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format
 				is golang templates [http://golang.org/pkg/text/template/#pkg-overview].
 	"""
+	# do nothing for now
+	return json.dumps({'options': options})

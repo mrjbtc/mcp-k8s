@@ -11,7 +11,7 @@ from server import mcp
     }
 )
 async def get_namespaces(options: str) -> str:
-	""" Get all namespaces 
+    """ Get all namespaces 
     
         Args:
             options: string of options below
@@ -98,8 +98,9 @@ async def get_namespaces(options: str) -> str:
 
             --watch-only=false:
             Watch for changes to the requested object(s), without listing/getting first.
+
     """
 
-	namespaces = NameSpaces()
-	namespaces = await namespaces.get_namespaces(options)
-	return json.dumps(namespaces.model_dump())
+    namespaces = NameSpaces()
+    namespaces = await namespaces.get_namespaces(options)
+    return json.dumps(namespaces.model_dump())

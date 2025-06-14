@@ -9,7 +9,7 @@ class Kubectl():
 
 	async def __run(self):
 
-		if not cmd:
+		if not self.cmd:
 			return
 
 		self.result = subprocess.run(
