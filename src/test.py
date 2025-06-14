@@ -13,6 +13,11 @@ async def get_deployments() -> str:
     deployments = await deployments.get_deployment("-A")
     print(json.dumps(deployments.model_dump()))
 
+async def get_pods() -> str:
+    pods = Pods()
+    pods = await pods.get_pods("-A")
+    print(json.dumps(pods.model_dump()))
+
 
 if __name__ == "__main__":
     asyncio.run(get_namespaces())
