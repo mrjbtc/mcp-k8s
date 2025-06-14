@@ -1,0 +1,47 @@
+version: 2.1
+orbs:
+  python: circleci/python@2
+jobs:
+  test:
+    docker:
+      - image: python:3.11-slim
+    steps:
+      - checkout
+      - python/install-packages
+      - run:
+          name: Run tests
+          command: PYTHONPATH=src pytest src/tests/ --junitxml=junit.xml
+      - store_test_results:
+          path: junit.xml
+  build:
+    machine:
+      image: ubuntu-2204:current
+    steps:
+      - checkout
+      - run:
+          name: Docker Build
+          command: docker build . -t mcp-k8s:$CIRCLE_TAG
+      - run:
+          name: Docker Login
+          command: |
+            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+      - run:
+          name: Docker Push
+          command: docker push $DOCKER_USER/mcp-k8s:$CIRCLE_TAG
+workflows:
+  test-and-build:
+    jobs:
+      - test:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              only: /.*/
+      - build:
+          requires:
+            - test
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
