@@ -20,7 +20,7 @@ jobs:
       - checkout
       - run:
           name: Docker Build
-          command: docker build . -t mcp-k8s:$CIRCLE_TAG
+          command: docker build . -t $DOCKER_USER/mcp-k8s:$CIRCLE_TAG
       - run:
           name: Docker Login
           command: |
