@@ -2,3 +2,4 @@ python-jose
 pydantic
 mcp[cli]
 uv
+pytest
