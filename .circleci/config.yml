@@ -32,6 +32,11 @@ workflows:
   test-and-build:
     jobs:
       - test
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              only: /.*/
       - build:
           requires:
             - test
