@@ -31,7 +31,7 @@ jobs:
 workflows:
   test-and-build:
     jobs:
-      - test
+      - test:
           filters:
             tags:
               only: /.*/
