@@ -1,0 +1,36 @@
+version: 2.1
+orbs:
+  python: circleci/python@2
+jobs:
+  test:
+    docker:
+      - image: python:3.11-slim
+    steps:
+      - checkout
+      - python/install-packages
+      - run:
+          name: Run tests
+          command: PYTHONPATH=src pytest src/tests/ --junitxml=junit.xml
+      - store_test_results:
+          path: junit.xml
+  build:
+    machine:
+      image: ubuntu-2204:current
+    steps:
+      - checkout
+      - run:
+          name: Build Image
+          command: docker build . -t mcp-k8s:$CIRCLE_BRANCH
+      - run:
+          name: Images
+          command: docker images
+      - run:
+          name: Push to repo
+          command: echo "docker push"
+workflows:
+  test-and-build:
+    jobs:
+      - test
+      - build:
+          requires:
+            - test
