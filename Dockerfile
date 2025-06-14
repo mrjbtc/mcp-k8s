@@ -23,7 +23,7 @@ RUN python -m ensurepip --default-pip && \
     pip install --no-cache-dir -r /home/${USER}/${SRC_CODE}/requirements.txt
 
 COPY --chown=${USER}:${USER} ./${SRC_CODE}/ /home/${USER}/${SRC_CODE}/
-COPY --chown=${USER}:${USER} kube-config /home/${USER}/.kube/config
+COPY --chown=${USER}:${USER} kube-config* /home/${USER}/.kube/config
 
 WORKDIR /home/${USER}
 
