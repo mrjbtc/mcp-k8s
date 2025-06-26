@@ -181,18 +181,19 @@ async def get_blue_green_deployment(options: str) -> str:
 
 @mcp.tool(
     annotations={
-        "title": "Deploying to green environment",
+        "title": "Set image",
         "readOnlyHint": False,
         "destructiveHint": True,
         "openWorldHint": False
     }
 )
-
-async def deploy_to_green_environment(name: str, options: str) -> str:
-	""" Deploying to green environment. The green environment is a deployment which has a labaled as environment=green
+async def set_image(name: str, image: str, tag: str, options: str) -> str:
+	""" Set image of the deployment
 
 		Args:
-			name: deployment name
+			name: name of the deployment
+			image: image
+			tag: the tag of the image
 			options: string of options below
 			    --all=false:
 				Select all resources, in the namespace of the specified resource types
@@ -235,6 +236,146 @@ async def deploy_to_green_environment(name: str, options: str) -> str:
 			    --template='':
 				Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format
 				is golang templates [http://golang.org/pkg/text/template/#pkg-overview].
+
 	"""
-	# do nothing for now
-	return json.dumps({'options': options})
+	deployments = Deployments()
+	deploy = await deployments.set_image(name, image, tag, options)
+	return json.dumps(deploy.model_dump())
+
+@mcp.tool(
+    annotations={
+        "title": "Scale replicas",
+        "readOnlyHint": False,
+        "destructiveHint": True,
+        "openWorldHint": False
+    }
+)
+async def scale_replicas(name: str, replicas: int, options: str) -> str:
+	""" Scale replicas of the deployment
+
+		Args:
+			name: name of the deployment
+			replicas: number of replicas to scale
+			options: string of options below
+
+			    --all=false:
+				Select all resources in the namespace of the specified resource types
+
+			    --allow-missing-template-keys=true:
+				If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to
+				golang and jsonpath output formats.
+
+			    --current-replicas=-1:
+				Precondition for current size. Requires that the current size of the resource match this value in order to
+				scale. -1 (default) for no condition.
+
+			    --dry-run='none':
+				Must be "none", "server", or "client". If client strategy, only print the object that would be sent, without
+				sending it. If server strategy, submit server-side request without persisting the resource.
+
+			    -f, --filename=[]:
+				Filename, directory, or URL to files identifying the resource to set a new size
+
+			    -k, --kustomize='':
+				Process the kustomization directory. This flag can't be used together with -f or -R.
+
+			    -o, --output='':
+				Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath,
+				jsonpath-as-json, jsonpath-file).
+
+			    -R, --recursive=false:
+				Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests
+				organized within the same directory.
+
+			    --replicas=0:
+				The new desired number of replicas. Required.
+
+			    --resource-version='':
+				Precondition for resource version. Requires that the current resource version match this value in order to
+				scale.
+
+			    -l, --selector='':
+				Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2). Matching
+				objects must satisfy all of the specified label constraints.
+
+			    --show-managed-fields=false:
+				If true, keep the managedFields when printing objects in JSON or YAML format.
+
+			    --template='':
+				Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format
+				is golang templates [http://golang.org/pkg/text/template/#pkg-overview].
+
+			    --timeout=0s:
+				The length of time to wait before giving up on a scale operation, zero means don't wait. Any other values
+				should contain a corresponding time unit (e.g. 1s, 2m, 3h).
+
+	"""
+	deployments = Deployments()
+	deployments = await deployments.scale_replicas(name, replicas, options)
+	return json.dumps(deploy.model_dump())
+
+
+@mcp.tool(
+    annotations={
+        "title": "Switch environment to blue or green",
+        "readOnlyHint": False,
+        "destructiveHint": True,
+        "openWorldHint": False
+    }
+)
+async def switch_blue_green_environment(name: str, environment: str, namespace: str) -> str:
+	""" Switch environment to blue or green.
+
+		Args:
+			name: name of the deployment
+			environment: blue or green
+			namespace: name of the namespace
+	"""
+	patch = json.dumps({
+	    "metadata": {
+	        "labels": {
+	            "environment": environment
+	        }
+	    }
+	})
+
+	deployments = Deployments()
+	deployments = await deployments.patch(name, namespace, patch)
+	return json.dumps(deploy.model_dump())
+
+@mcp.tool(
+    annotations={
+        "title": "How to deploy blue green",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": False
+    }
+)
+async def how_to_deploy_blue_green():
+	""" These are the steps on how to deploy Blue Green deployment """
+	return """
+    	1. Query the existing blue deployment to get the number of replicas it’s running. This ensures the green deployment will scale to match the current load.
+
+    	2. Update the svc-web-app-test service to point to the green deployment by modifying its selector to app=${GREEN-ENVIRONMENT} GREEN-ENVIRONMENT = web-app-a OR web-app-b. This will route traffic to the new version for pre-release validation.
+
+    	3. Update the image of the green deployment to the specified version/tag
+
+        4. Scale the green deployment to match the replica count retrieved from the blue deployment (Step 1)
+
+        5. Validate the green deployment by checking its health endpoint using the test service's IP=192.168.106.3 and NODE_PORT=30655 using the health check with the uri http://{IP}:{NODE_PORT} Monitor this endpoint for up to 3 minutes. If it doesn't consistently return HTTP 200 OK, abort the deployment.
+
+        6. Ask for approval to continue the deployment.
+
+        7. Once the health check passes, pause and wait for manual approval to proceed with production switch.
+
+        8. Update the production service svc-web-app to point to the green deployment by modifying its selector to app=${GREEN-ENVIRONMENT} GREEN-ENVIRONMENT = web-app-a OR web-app-b
+
+        9. Promote the green deployment to "blue" by updating the labels from green to blue.
+
+        10. Update the existing blue deployment’s labels to indicate it is now the "green" (standby) environment.
+
+        11. Finally, scale the old blue deployment down to zero replicas. Be careful to target the correct one (the previous production deployment, not the newly updated green).
+    """
+
+
+	

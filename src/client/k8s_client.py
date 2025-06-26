@@ -7,6 +7,8 @@ class Kubectl():
 	
 	result = None
 
+	default_options = ["-o", "json"]
+
 	async def __run(self):
 
 		if not self.cmd:

@@ -8,5 +8,5 @@ class NameSpaces(Kubectl):
 		super().__init__()
 
 	async def get_namespaces(self, options="") -> MCPResponse:
-		cmd = ["kubectl", "get", "ns"] + ["-o", "json"] + options.split()
+		cmd = ["kubectl", "get", "ns"] + self.default_options + options.split()
 		return await self._get(cmd)

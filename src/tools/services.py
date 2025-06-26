@@ -102,3 +102,61 @@ async def get_services(options: str) -> str:
 	services = Services()
 	services = await services.get_services(options)
 	return json.dumps(services.model_dump())
+
+@mcp.tool(
+    annotations={
+        "title": "Set selector",
+        "readOnlyHint": False,
+        "destructiveHint": True,
+        "openWorldHint": False
+    }
+)
+async def set_selector(name: str, options: str) -> str:
+	""" Setting selector in a service
+		
+		Args:
+			name: name of the service
+			options: string of options below
+			    --all=false:
+				Select all resources in the namespace of the specified resource types
+
+			    --allow-missing-template-keys=true:
+				If true, ignore any errors in templates when a field or map key is missing in the template. Only applies to
+				golang and jsonpath output formats.
+
+			    --dry-run='none':
+				Must be "none", "server", or "client". If client strategy, only print the object that would be sent, without
+				sending it. If server strategy, submit server-side request without persisting the resource.
+
+			    --field-manager='kubectl-set':
+				Name of the manager used to track field ownership.
+
+			    -f, --filename=[]:
+				identifying the resource.
+
+			    --local=false:
+				If true, annotation will NOT contact api-server but run locally.
+
+			    -o, --output='':
+				Output format. One of: (json, yaml, name, go-template, go-template-file, template, templatefile, jsonpath,
+				jsonpath-as-json, jsonpath-file).
+
+			    -R, --recursive=true:
+				Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests
+				organized within the same directory.
+
+			    --resource-version='':
+				If non-empty, the selectors update will only succeed if this is the current resource-version for the object.
+				Only valid when specifying a single resource.
+
+			    --show-managed-fields=false:
+				If true, keep the managedFields when printing objects in JSON or YAML format.
+
+			    --template='':
+				Template string or path to template file to use when -o=go-template, -o=go-template-file. The template format
+				is golang templates [http://golang.org/pkg/text/template/#pkg-overview].
+
+	"""
+	services = Services()
+	services = await services.set_selector(name, options)
+	return json.dumps(services.model_dump())

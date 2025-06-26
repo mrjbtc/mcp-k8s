@@ -1,5 +1,6 @@
 
-from . deployment import get_deployments
-from . namespace import get_namespaces
-from . pod import get_pods
+from . deployment import *
+from . namespace import *
+from . pod import *
+from . services import *
 
